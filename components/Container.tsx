@@ -1,5 +1,4 @@
 'use client'
-import OpenAI from 'openai'
 import React, { useEffect, useState } from 'react'
 
 const Container = () => {
@@ -8,45 +7,39 @@ const Container = () => {
     const [output, setOutput] = useState('Hola!!')
     const [language, setLanguage] = useState('spanish')
     const [pending, setPending] = useState(false)
-    const api_key = 'hahahaahahah'
 
-    const messages = [
-        {
-            role: 'system',
-            content: 'I want you to translate the input you get directly to spanish'
-        },
-        {
-            role: 'user',
-            content: { input }
-        },
-    ]
+
 
 
     const handleTranslate = async () => {
         setPending(true)
-        const client = new OpenAI({
-            dangerouslyAllowBrowser: true,
-            apiKey: api_key
-        })
+
+        const messages = [
+            {
+                role: 'system',
+                content: `I want you to translate the input you get directly to ${language}`
+            },
+            {
+                role: 'user',
+                content: input
+            },
+        ]
 
         try {
-            const response = await client.chat.completions.create({
-                model: 'gpt-3.5-turbo',
-                messages: [
-                    {
-                        role: 'system',
-                        content: `I want you to translate the input you get directly to ${language}`
-                    },
-                    {
-                        role: 'user',
-                        content: input
-                    },
-                ],
-                temperature: 1
+            console.log('Hallo?')
+            const response = await fetch('https://twilight-firefly-43fe.frojak4.workers.dev/', {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/json'
+                },
+                body: JSON.stringify(messages)
             })
-            setOutput(response.choices[0].message.content)
+            const message = await response.json()
+            console.log(message)
+            setOutput(message)
         } catch (err) {
-            console.log(err)
+            const error = await err.json()
+            setOutput(error)
         }
 
         setPending(false)
@@ -62,9 +55,12 @@ const Container = () => {
                 <option value="spanish">Spanish</option>
                 <option value="french">French</option>
                 <option value="norwegian">Norwegian</option>
+                <option value="english">English</option>
+                <option value="german">German</option>
+                <option value="how a sophisticated english man would say it">Fancy English</option>
                 <option value="how kanye west would say this sentence">Kanye West</option>
             </select>
-            <div className="w-1/5 mx-auto" onClick={() => console.log(language)}>
+            <div className="w-1/5 mx-auto">
                 <h3 className="bg-white text-black p-2 mt-4 text-center">{output}</h3>
             </div>
         </div>
